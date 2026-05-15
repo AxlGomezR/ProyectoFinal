@@ -4,6 +4,7 @@ Dictionary<int, Planta> plantas = new Dictionary<int, Planta>();
 List<string> categorias = new List<string>();
 int opcion;
 bool continuar;
+bool encontrado;
 do
 {
     Console.WriteLine("MENÚ PRINCIPAL");
@@ -18,6 +19,9 @@ do
         {
             case 1:
                 MenuPlantas();
+                break;
+            case 3:
+                Console.WriteLine("Ha salido del programa");
                 break;
             default:
                 Console.WriteLine("Asegurese de ingresar una opción válida\n");
@@ -50,7 +54,7 @@ void MenuPlantas()
                     IngresarPlanta();
                     break;
                 case 2:
-                    BuscarPlanta();
+                    MenuBuscar();
                     break;
                 case 3:
                     Console.WriteLine("LISTADO COMPLETO DE PLANTAS INGRESADAS\n");
@@ -58,6 +62,9 @@ void MenuPlantas()
                     {
                         plan.Value.VerInfo();
                     }
+                    break;
+                case 5:
+                    ModificarPlanta();
                     break;
                 default:
                     if (opcion != 6)
@@ -94,9 +101,27 @@ void IngresarPlanta()
                 case 1:
                     Console.WriteLine("¿Cuál será el nombre de la categoría para la planta " + nombre + "?");
                     categoria = Console.ReadLine();
-                    categorias.Add(categoria);
                     Console.Clear();
-                    Console.WriteLine("La categoría se ha creado y asignado correctamente\n");
+                    encontrado = false;
+                    foreach (string cate in categorias)
+                    {
+                        if (cate==categoria)
+                        {
+                            encontrado = true;
+                            break;
+                        }
+                    }
+                    if (encontrado)
+                    {
+                        Console.WriteLine("La categoría se ha asignado correctamente");
+                        Console.WriteLine("Puede asignar categorías que ya existan desde la opción 2\n");
+                    }
+                    else
+                    {
+                        categorias.Add(categoria);
+                        Console.Clear();
+                        Console.WriteLine("La categoría se ha creado y asignado correctamente\n");
+                    }
                     break;
                 case 2:
                     if (categorias.Count == 0)
@@ -223,7 +248,7 @@ void IngresarPlanta()
     plantas.Add(codigo, p);
     Console.WriteLine("La planta se ha añadido correctamente\n");
 }
-void BuscarPlanta()
+void MenuBuscar()
 {
     do
     {
@@ -236,95 +261,14 @@ void BuscarPlanta()
         Console.Clear();
         if (continuar)
         {
-            switch (opcion)
+            if (opcion >= 1 && opcion <= 3)
             {
-                case 1:
-                    Console.WriteLine("¿Cuál es el nombre de la planta que desea buscar?");
-                    string buscar = Console.ReadLine();
-                    Console.Clear();
-                    bool encontrado = false;
-                    int llave = 0;
-                    foreach (var b in plantas)
-                    {
-                        if (b.Value.Nombre == buscar)
-                        {
-                            encontrado = true;
-                            llave = b.Key;
-                            break;
-                        }
-                    }
-                    if (encontrado)
-                    {
-                        plantas[llave].VerInfo();
-                    }
-                    else
-                    {
-                        Console.WriteLine("La planta ingresada no existe en el listado\n");
-                    }
-                    break;
-                case 2:
-                    int codigo = 0;
-                    do
-                    {
-                        Console.WriteLine("Ingrese el código de la planta que desea buscar");
-                        continuar = int.TryParse (Console.ReadLine(), out codigo);
-                        Console.Clear();
-                        if (!continuar)
-                        {
-                            Console.WriteLine("Asegurese de ingresar solo números enteros\n");
-                        }
-                    } while (!continuar);
-                    encontrado = false;
-                    foreach(var e in plantas)
-                    {
-                        if (e.Key == codigo)
-                        {
-                            encontrado = true;
-                            break;
-                        }
-                    }
-                    if (encontrado)
-                    {
-                        plantas[codigo].VerInfo();
-                    }
-                    else
-                    {
-                        Console.WriteLine("No se ha encontrado ninguna planta con ese código\n");
-                    }
-                    break;
-                case 3:
-                    Console.WriteLine("Se mostrarán todas las plantas que sean de la categoría ingresada");
-                    Console.WriteLine("¿Qué categoría desea buscar?");
-                    string categoria = Console.ReadLine();
-                    Console.Clear();
-                    encontrado = false;
-                    foreach(string c in categorias)
-                    {
-                        if (c == categoria)
-                        {
-                            encontrado = true;
-                            break;
-                        }
-                    }
-                    if (encontrado)
-                    {
-                        Console.WriteLine("LISTADO DE PLANTAS DE TIPO: "+categoria);
-                        foreach (var cat in plantas)
-                        {
-                            if (cat.Value.Categoria == categoria)
-                            {
-                                cat.Value.VerInfo();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("No se encontraron plantas de la categoria "+categoria+"\n");
-                    }
-                    break;
-                default:
-                    Console.WriteLine("Asegurese de ingresar una opción válida\n");
-                    break;
+                BuscarPlanta("buscar",opcion);
+            }
+            else if (opcion!=4)
+            {
+                Console.WriteLine("Asegurese de ingresar una opción válida\n");
+                continuar = false;
             }
         }
         else
@@ -333,15 +277,150 @@ void BuscarPlanta()
         }
     } while (opcion != 4);
 }
+void BuscarPlanta(string accion, int seleccion)
+{
+    switch (seleccion)
+    {
+        case 1:
+            Console.WriteLine("¿Cuál es el nombre de la planta que desea "+accion+"?");
+            string buscar = Console.ReadLine();
+            Console.Clear();
+            encontrado = false;
+            int llave = 0;
+            foreach (var b in plantas)
+            {
+                if (b.Value.Nombre == buscar)
+                {
+                    encontrado = true;
+                    llave = b.Key;
+                    break;
+                }
+            }
+            if (encontrado)
+            {
+                plantas[llave].VerInfo();
+            }
+            else
+            {
+                Console.WriteLine("La planta ingresada no existe en el listado\n");
+            }
+            break;
+        case 2:
+            int codigo = 0;
+            do
+            {
+                Console.WriteLine("Ingrese el código de la planta que desea "+accion);
+                continuar = int.TryParse(Console.ReadLine(), out codigo);
+                Console.Clear();
+                if (!continuar)
+                {
+                    Console.WriteLine("Asegurese de ingresar solo números enteros\n");
+                }
+            } while (!continuar);
+            encontrado = false;
+            foreach (var e in plantas)
+            {
+                if (e.Key == codigo)
+                {
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (encontrado)
+            {
+                plantas[codigo].VerInfo();
+            }
+            else
+            {
+                Console.WriteLine("No se ha encontrado ninguna planta con ese código\n");
+            }
+            break;
+        case 3:
+            Console.WriteLine("Se mostrarán todas las plantas que sean de la categoría ingresada");
+            Console.WriteLine("¿Qué categoría desea buscar?");
+            string categoria = Console.ReadLine();
+            Console.Clear();
+            encontrado = false;
+            foreach (string c in categorias)
+            {
+                if (c == categoria)
+                {
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (encontrado)
+            {
+                Console.WriteLine("LISTADO DE PLANTAS DE TIPO: " + categoria+"\n");
+                foreach (var cat in plantas)
+                {
+                    if (cat.Value.Categoria == categoria)
+                    {
+                        cat.Value.VerInfo();
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("No se encontraron plantas de la categoria " + categoria + "\n");
+            }
+            break;
+    }
+}
 void ModificarPlanta()
 {
     do
     {
         Console.WriteLine("¿Qúe desea modificar?");
-        Console.WriteLine("1) Modificar información de planta");
+        Console.WriteLine("1) Modificar información de una planta");
         Console.WriteLine("2) Modificar una categoría");
         Console.WriteLine("3) Volver al menú de plantas");
-    } while (true);
+        continuar = int.TryParse(Console.ReadLine(), out opcion);
+        Console.Clear();
+        if (continuar)
+        {
+            switch (opcion)
+            {
+                case 1:
+                    do
+                    {
+                        Console.WriteLine("Se modificará la información de la planta que busque");
+                        Console.WriteLine("¿Qué método de búsqueda desea utilizar?");
+                        Console.WriteLine("1) Buscar por nombre");
+                        Console.WriteLine("2) Buscar por código");
+                        Console.WriteLine("3) Volver al menú de plantas");
+                        continuar = int.TryParse (Console.ReadLine(), out opcion);
+                        Console.Clear();
+                        if (continuar)
+                        {
+                            if (opcion >= 1 && opcion <= 2)
+                            {
+                                BuscarPlanta("modificar", opcion);
+                            }else if (opcion != 3)
+                            {
+                                Console.WriteLine("Asegurese de ingresar una opción válida");
+                                continuar = false;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Asegurese de ingresar un número entero\n");
+                        }
+                    } while (opcion!=3);
+                    break;
+                default:
+                    if (opcion != 3)
+                    {
+                        Console.WriteLine("Asegurese de ingresar una opción válida\n");
+                    }
+                    break;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Asegurese de ingresar un número entero\n");
+        }
+    } while (opcion!=3);
 }
 
 class Planta
